@@ -68,3 +68,18 @@
   color: var(--danger);
   margin: 0;
 }
+
+.alternativa {
+  margin: 0;
+  color: var(--muted, inherit);
+}
+
+.enlace {
+  color: var(--focus);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+}

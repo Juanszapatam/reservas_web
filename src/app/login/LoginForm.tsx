@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSesion } from "@/components/SesionProvider";
+import { firebaseConfigurado } from "@/lib/firebase/client";
 import styles from "./login.module.css";
+
+type Modo = "entrar" | "registrar";
 
 export function LoginForm({ desde }: { desde: string }) {
   const router = useRouter();
@@ -13,32 +16,29 @@ export function LoginForm({ desde }: { desde: string }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
-  const [firebaseListo, setFirebaseListo] = useState<boolean | null>(null);
+  const [modo, setModo] = useState<Modo>("entrar");
+  const firebaseListo = firebaseConfigurado();
 
-  useEffect(() => {
-    let activo = true;
-    import("@/lib/firebase/client")
-      .then((modulo) => {
-        if (activo) setFirebaseListo(modulo.firebaseConfigurado());
-      })
-      .catch(() => {
-        if (activo) setFirebaseListo(false);
-      });
-    return () => {
-      activo = false;
-    };
-  }, []);
+  function cambiarModo(nuevo: Modo) {
+    setModo(nuevo);
+    setError(null);
+  }
 
-  async function entrarConCorreo(e: React.FormEvent<HTMLFormElement>) {
+  async function autenticar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setEnviando(true);
     try {
-      const [{ authCliente }, { signInWithEmailAndPassword }] = await Promise.all([
+      const [{ authCliente }, authModule] = await Promise.all([
         import("@/lib/firebase/client"),
         import("firebase/auth"),
       ]);
-      const credencial = await signInWithEmailAndPassword(authCliente(), correo, password);
+
+      const credencial =
+        modo === "registrar"
+          ? await authModule.createUserWithEmailAndPassword(authCliente(), correo, password)
+          : await authModule.signInWithEmailAndPassword(authCliente(), correo, password);
+
       const idToken = await credencial.user.getIdToken();
       const res = await fetch("/api/auth/sesion", {
         method: "POST",
@@ -53,33 +53,31 @@ export function LoginForm({ desde }: { desde: string }) {
       router.push(desde);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo iniciar sesión");
+      setError(traducirError(err));
     } finally {
       setEnviando(false);
     }
   }
 
-  async function entrarDemo(rol: "cliente" | "admin") {
-    setError(null);
-    setEnviando(true);
-    try {
-      const res = await fetch("/api/auth/demo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rol }),
-      });
-      if (!res.ok) {
-        const json = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(json.error ?? "No se pudo iniciar la sesión de demostración");
-      }
-      await refrescar();
-      router.push(desde);
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo iniciar la sesión de demostración");
-    } finally {
-      setEnviando(false);
+  function traducirError(err: unknown): string {
+    if (!(err instanceof Error)) return "No se pudo completar la operación";
+    const mensaje = err.message;
+    if (mensaje.includes("auth/email-already-in-use")) {
+      return "Ese correo ya está registrado. Inicia sesión.";
     }
+    if (mensaje.includes("auth/weak-password")) {
+      return "La contraseña debe tener al menos 6 caracteres.";
+    }
+    if (mensaje.includes("auth/invalid-email")) {
+      return "El correo no es válido.";
+    }
+    if (mensaje.includes("auth/invalid-credential") || mensaje.includes("auth/wrong-password")) {
+      return "Correo o contraseña incorrectos.";
+    }
+    if (mensaje.includes("auth/user-not-found")) {
+      return "No existe una cuenta con ese correo.";
+    }
+    return mensaje;
   }
 
   if (usuario) {
@@ -91,58 +89,76 @@ export function LoginForm({ desde }: { desde: string }) {
     );
   }
 
+  if (!firebaseListo) {
+    return (
+      <div className={styles.demo}>
+        <p>
+          Firebase Auth no está configurado. Revisa las variables
+          NEXT_PUBLIC_FIREBASE_API_KEY, NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID y NEXT_PUBLIC_FIREBASE_APP_ID en .env.local.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.contenedor}>
-      {firebaseListo ? (
-        <form className={styles.form} onSubmit={entrarConCorreo} noValidate>
-          <div className={styles.campo}>
-            <label htmlFor="correo">Correo electrónico</label>
-            <input
-              id="correo"
-              name="correo"
-              type="email"
-              autoComplete="email"
-              required
-              value={correo}
-              onChange={(e) => setCorreo(e.target.value)}
-              aria-describedby={error ? "login-error" : undefined}
-            />
-          </div>
-          <div className={styles.campo}>
-            <label htmlFor="password">Contraseña</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              aria-describedby={error ? "login-error" : undefined}
-            />
-          </div>
-          <button type="submit" disabled={enviando}>
-            {enviando ? "Entrando…" : "Iniciar sesión"}
-          </button>
-        </form>
-      ) : firebaseListo === false ? (
-        <div className={styles.demo}>
-          <p>
-            Firebase Auth no está configurado en este entorno. Para probar el flujo completo puedes usar una sesión de
-            demostración local:
-          </p>
-          <div className={styles.botones}>
-            <button type="button" onClick={() => entrarDemo("cliente")} disabled={enviando}>
-              Entrar como cliente demo
-            </button>
-            <button type="button" onClick={() => entrarDemo("admin")} disabled={enviando}>
-              Entrar como admin demo
-            </button>
-          </div>
+      <form className={styles.form} onSubmit={autenticar} noValidate>
+        <div className={styles.campo}>
+          <label htmlFor="correo">Correo electrónico</label>
+          <input
+            id="correo"
+            name="correo"
+            type="email"
+            autoComplete="email"
+            required
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
+            aria-describedby={error ? "login-error" : undefined}
+          />
         </div>
-      ) : (
-        <p role="status">Comprobando configuración…</p>
-      )}
+        <div className={styles.campo}>
+          <label htmlFor="password">Contraseña</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autoComplete={modo === "registrar" ? "new-password" : "current-password"}
+            required
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            aria-describedby={error ? "login-error" : undefined}
+          />
+        </div>
+        <button type="submit" disabled={enviando}>
+          {enviando
+            ? modo === "registrar"
+              ? "Creando cuenta…"
+              : "Entrando…"
+            : modo === "registrar"
+              ? "Crear cuenta"
+              : "Iniciar sesión"}
+        </button>
+      </form>
+
+      <p className={styles.alternativa}>
+        {modo === "entrar" ? "¿No tienes cuenta? " : "¿Ya tienes cuenta? "}
+        <span
+          className={styles.enlace}
+          role="button"
+          tabIndex={0}
+          onClick={() => cambiarModo(modo === "entrar" ? "registrar" : "entrar")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              cambiarModo(modo === "entrar" ? "registrar" : "entrar");
+            }
+          }}
+        >
+          {modo === "entrar" ? "Regístrate" : "Inicia sesión"}
+        </span>
+      </p>
 
       <div aria-live="polite" className={styles.errorRegion}>
         {error ? (
