@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { obtenerHorario } from "@/services/citas";
+import { SEDES_POR_DEFECTO as SEDES } from "@/lib/sedes";
 
 export const metadata: Metadata = {
   title: "Inicio",
@@ -37,12 +38,17 @@ export default async function HomePage() {
         </li>
       </ul>
 
-      <h2>Servicios</h2>
-      <ul>
-        <li>Corte de cabello</li>
-        <li>Arreglo de barba</li>
-        <li>Corte + barba</li>
-      </ul>
+      <h2>Servicios por sede</h2>
+      {SEDES.map((sede) => (
+        <div key={sede.id}>
+          <h3>{sede.nombre}</h3>
+          <ul>
+            {sede.servicios.map((servicio) => (
+              <li key={servicio.id}>{servicio.nombre}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
 
       <p>
         <Link href="/reservar">Reservar una cita</Link> · <Link href="/mis-citas">Ver mis citas</Link>

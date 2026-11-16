@@ -17,7 +17,7 @@ import { useHidratado } from "@/hooks/useHidratado";
 import { idFranja } from "@/lib/fechas";
 import { descargarICS } from "@/lib/ics";
 import type { Cita } from "@/schemas/cita";
-import { servicios } from "@/schemas/cita";
+import { SEDES_POR_DEFECTO, type Servicio } from "@/lib/sedes";
 import { fechaQuerySchema, type Franja, type FranjasResponse } from "@/schemas/franja";
 import styles from "./reservar.module.css";
 
@@ -52,7 +52,8 @@ export function ReservarCliente({ fechaInicial }: { fechaInicial: string }) {
   const [errorFecha, setErrorFecha] = useState<string | null>(null);
   const [intento, setIntento] = useState(0);
   const [seleccionada, setSeleccionada] = useState<Franja | null>(null);
-  const [servicio, setServicio] = useState<string>(servicios[0].id);
+  const [serviciosDisponibles, setServiciosDisponibles] = useState<Servicio[]>(SEDES_POR_DEFECTO[0].servicios);
+  const [servicio, setServicio] = useState<string>(SEDES_POR_DEFECTO[0].servicios[0].id);
   const [exito, setExito] = useState<string | null>(null);
   const [conflicto, setConflicto] = useState<string | null>(null);
   const [ultimaCita, setUltimaCita] = useState<Cita | null>(null);
@@ -124,10 +125,43 @@ export function ReservarCliente({ fechaInicial }: { fechaInicial: string }) {
     }
   }, [seleccionada]);
 
+  useEffect(() => {
+    let cancelado = false;
+
+    void (async () => {
+      await Promise.resolve();
+      if (cancelado) return;
+
+      if (!usuario?.sede) {
+        const servicios = SEDES_POR_DEFECTO[0].servicios;
+        setServiciosDisponibles(servicios);
+        setServicio(servicios[0]?.id ?? "");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/sedes", { cache: "no-store" });
+        if (!res.ok || cancelado) return;
+        const json = (await res.json()) as { sedes?: { id: string; servicios: Servicio[] }[] };
+        const sede = json.sedes?.find((item) => item.id === usuario.sede);
+        if (sede?.servicios?.length) {
+          setServiciosDisponibles(sede.servicios);
+          setServicio(sede.servicios[0].id);
+        }
+      } catch {
+        // Mantiene los servicios por defecto si falla la carga.
+      }
+    })();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [usuario?.sede]);
+
   function abrirDialogo(franja: Franja) {
     disparadorRef.current = document.activeElement as HTMLElement | null;
     setConflicto(null);
-    setServicio(servicios[0].id);
+    setServicio(serviciosDisponibles[0]?.id ?? "");
     setSeleccionada(franja);
   }
 
@@ -299,7 +333,7 @@ export function ReservarCliente({ fechaInicial }: { fechaInicial: string }) {
                 value={servicio}
                 onChange={(e) => setServicio(e.target.value)}
               >
-                {servicios.map((s) => (
+                {serviciosDisponibles.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.nombre}
                   </option>

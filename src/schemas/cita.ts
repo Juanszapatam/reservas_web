@@ -27,11 +27,9 @@ export const crearCitaSchema = z
 
 export type CrearCitaEntrada = z.infer<typeof crearCitaSchema>;
 
-export const servicios = [
-  { id: "corte", nombre: "Corte de cabello", duracionMin: 30 },
-  { id: "barba", nombre: "Arreglo de barba", duracionMin: 30 },
-  { id: "corte-barba", nombre: "Corte + barba", duracionMin: 30 },
-] as const;
+import { SEDES_POR_DEFECTO } from "@/lib/sedes";
+
+export const servicios = SEDES_POR_DEFECTO.flatMap((sede) => sede.servicios);
 
 export function nombreServicio(id: string): string {
   return servicios.find((s) => s.id === id)?.nombre ?? id;
