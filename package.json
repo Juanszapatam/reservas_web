@@ -18,7 +18,8 @@
     "test:emulador:auth": "firebase emulators:exec --only auth \"npm run test:emulador:vitest\"",
     "test:emulador:vitest": "cross-env EMULADOR_TEST=1 REPOSITORIO=firestore vitest run tests/integracion",
     "sembrar:emulador": "cross-env FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 node scripts/sembrar-emulador.mjs",
-    "admin:asignar": "node --env-file-if-exists=.env.local scripts/asignar-admin.mjs"
+    "admin:asignar": "node --env-file-if-exists=.env.local scripts/asignar-admin.mjs",
+    "firebase:verificar": "node --env-file-if-exists=.env.local scripts/verificar-firebase.mjs"
   },
   "dependencies": {
     "@google-cloud/firestore": "^9.1.0",
