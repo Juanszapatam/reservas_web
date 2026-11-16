@@ -1,0 +1,15 @@
+meta {
+  name: Mis citas
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/mis-citas?limite=20
+  body: none
+  auth: none
+}
+
+headers {
+  cookie: {{cookieCliente}}
+}

@@ -1,0 +1,19 @@
+meta {
+  name: Agenda del día
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/admin/agenda?fecha={{fecha}}
+  body: none
+  auth: none
+}
+
+headers {
+  cookie: {{cookieAdmin}}
+}
+
+params:query {
+  fecha: {{fecha}}
+}

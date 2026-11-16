@@ -1,0 +1,531 @@
+openapi: 3.1.0
+info:
+  title: Reserva de citas por franjas
+  version: 1.0.0
+  description: |
+    API REST del proyecto de reserva de citas por franjas de 30 minutos.
+
+    - Todas las fechas y horas se intercambian en ISO 8601 UTC.
+    - Las horas de la interfaz se muestran en la zona horaria del negocio.
+    - La sesión viaja en la cookie HttpOnly `sesion` o en `Authorization: Bearer <idToken>`.
+    - En desarrollo existe un modo demo con las cookies `sesion=demo-cliente` y
+      `sesion=demo-admin` (solo si `MODO_DEMO` está activo).
+    - Los errores tienen la forma `{ "error": string, "detalles"?: [{ "campo", "mensaje" }] }`.
+servers:
+  - url: http://localhost:3000
+    description: Desarrollo local
+tags:
+  - name: Franjas
+  - name: Citas
+  - name: Admin
+  - name: Configuración
+  - name: Autenticación
+paths:
+  /api/franjas:
+    get:
+      tags: [Franjas]
+      summary: Lista las franjas de un día
+      parameters:
+        - name: fecha
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+          example: "2030-01-02"
+      responses:
+        "200":
+          description: Franjas del día (vacías si no es laboral o está bloqueado)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FranjasResponse"
+        "400":
+          $ref: "#/components/responses/Validacion"
+        "429":
+          $ref: "#/components/responses/DemasiadasSolicitudes"
+  /api/citas:
+    post:
+      tags: [Citas]
+      summary: Reserva una franja para el usuario autenticado
+      security:
+        - cookieSesion: []
+        - bearerIdToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrearCitaEntrada"
+      responses:
+        "201":
+          description: Cita creada
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [cita]
+                properties:
+                  cita:
+                    $ref: "#/components/schemas/Cita"
+        "400":
+          $ref: "#/components/responses/Validacion"
+        "401":
+          $ref: "#/components/responses/NoAutorizado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "409":
+          description: Franja ocupada, fuera de horario o límite de citas activas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "410":
+          description: La franja o el día ya pasó
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          $ref: "#/components/responses/DemasiadasSolicitudes"
+  /api/citas/{franja}:
+    delete:
+      tags: [Citas]
+      summary: Cancela una cita propia (el admin puede cancelar cualquiera)
+      security:
+        - cookieSesion: []
+        - bearerIdToken: []
+      parameters:
+        - name: franja
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}-\\d{2}$"
+          example: "2030-01-02T15-00"
+      responses:
+        "200":
+          description: Cita cancelada
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [cita]
+                properties:
+                  cita:
+                    $ref: "#/components/schemas/Cita"
+        "400":
+          $ref: "#/components/responses/Validacion"
+        "401":
+          $ref: "#/components/responses/NoAutorizado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+        "409":
+          description: Faltan menos de 2 horas para la cita
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/mis-citas:
+    get:
+      tags: [Citas]
+      summary: Lista las citas activas e historial del usuario
+      security:
+        - cookieSesion: []
+        - bearerIdToken: []
+      parameters:
+        - name: limite
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: cursor
+          in: query
+          description: Identificador de la última franja de la página anterior
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Citas del usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, siguienteCursor, activas, historial, zonaHoraria]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Cita"
+                  siguienteCursor:
+                    type: [string, "null"]
+                  activas:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Cita"
+                  historial:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Cita"
+                  zonaHoraria:
+                    type: string
+                    example: America/Bogota
+        "401":
+          $ref: "#/components/responses/NoAutorizado"
+  /api/admin/agenda:
+    get:
+      tags: [Admin]
+      summary: Agenda del día (solo administrador)
+      security:
+        - cookieSesion: []
+        - bearerIdToken: []
+      parameters:
+        - name: fecha
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+      responses:
+        "200":
+          description: Citas del día ordenadas por hora
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [fecha, zonaHoraria, items]
+                properties:
+                  fecha:
+                    type: string
+                  zonaHoraria:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Cita"
+        "400":
+          $ref: "#/components/responses/Validacion"
+        "401":
+          $ref: "#/components/responses/NoAutorizado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+  /api/config/horario:
+    get:
+      tags: [Configuración]
+      summary: Horario de atención del negocio
+      responses:
+        "200":
+          description: Horario actual
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [horario]
+                properties:
+                  horario:
+                    $ref: "#/components/schemas/Horario"
+    put:
+      tags: [Configuración]
+      summary: Actualiza el horario (solo administrador)
+      security:
+        - cookieSesion: []
+        - bearerIdToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Horario"
+      responses:
+        "200":
+          description: Horario guardado
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [horario]
+                properties:
+                  horario:
+                    $ref: "#/components/schemas/Horario"
+        "400":
+          $ref: "#/components/responses/Validacion"
+        "401":
+          $ref: "#/components/responses/NoAutorizado"
+        "403":
+          $ref: "#/components/responses/Prohibido"
+  /api/auth/yo:
+    get:
+      tags: [Autenticación]
+      summary: Usuario de la sesión actual
+      security:
+        - cookieSesion: []
+        - bearerIdToken: []
+      responses:
+        "200":
+          description: Usuario autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [usuario]
+                properties:
+                  usuario:
+                    $ref: "#/components/schemas/Usuario"
+        "401":
+          $ref: "#/components/responses/NoAutorizado"
+  /api/auth/sesion:
+    post:
+      tags: [Autenticación]
+      summary: Canjea un idToken de Firebase por una cookie de sesión
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [idToken]
+              properties:
+                idToken:
+                  type: string
+                  minLength: 10
+      responses:
+        "204":
+          description: Cookie de sesión creada
+        "400":
+          $ref: "#/components/responses/Validacion"
+        "401":
+          $ref: "#/components/responses/NoAutorizado"
+        "500":
+          description: Firebase Admin no está configurado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags: [Autenticación]
+      summary: Cierra la sesión y borra la cookie
+      responses:
+        "204":
+          description: Cookie eliminada
+  /api/auth/demo:
+    post:
+      tags: [Autenticación]
+      summary: Inicia sesión demo (solo fuera de producción)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [rol]
+              properties:
+                rol:
+                  type: string
+                  enum: [cliente, admin]
+      responses:
+        "204":
+          description: Cookie demo creada
+        "400":
+          $ref: "#/components/responses/Validacion"
+        "404":
+          description: Modo demo deshabilitado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags: [Autenticación]
+      summary: Cierra la sesión demo
+      responses:
+        "204":
+          description: Cookie demo eliminada
+        "404":
+          description: Modo demo deshabilitado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  securitySchemes:
+    cookieSesion:
+      type: apiKey
+      in: cookie
+      name: sesion
+    bearerIdToken:
+      type: http
+      scheme: bearer
+      bearerFormat: Firebase ID Token
+  responses:
+    Validacion:
+      description: Datos inválidos
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NoAutorizado:
+      description: Falta la sesión o no es válida
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Prohibido:
+      description: El usuario no tiene el rol requerido u origen no permitido
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NoEncontrado:
+      description: El recurso no existe
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    DemasiadasSolicitudes:
+      description: Límite de peticiones superado
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        detalles:
+          type: array
+          items:
+            type: object
+            required: [campo, mensaje]
+            properties:
+              campo:
+                type: string
+              mensaje:
+                type: string
+    Usuario:
+      type: object
+      required: [uid, correo, rol]
+      properties:
+        uid:
+          type: string
+        correo:
+          type: string
+          format: email
+        rol:
+          type: string
+          enum: [cliente, admin]
+    Franja:
+      type: object
+      required: [inicio, fin, estado, etiqueta]
+      properties:
+        inicio:
+          type: string
+          format: date-time
+        fin:
+          type: string
+          format: date-time
+        estado:
+          type: string
+          enum: [libre, ocupada]
+        etiqueta:
+          type: string
+          example: "08:00 - 08:30"
+    FranjasResponse:
+      type: object
+      required: [fecha, zonaHoraria, franjas]
+      properties:
+        fecha:
+          type: string
+          example: "2030-01-02"
+        zonaHoraria:
+          type: string
+          example: America/Bogota
+        franjas:
+          type: array
+          items:
+            $ref: "#/components/schemas/Franja"
+        motivo:
+          type: string
+          enum: [dia-no-laboral, bloqueado, pasado, sin-franjas]
+    CrearCitaEntrada:
+      type: object
+      additionalProperties: false
+      required: [franja, servicio]
+      properties:
+        franja:
+          type: string
+          pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}-\\d{2}$"
+          example: "2030-01-02T15-00"
+        servicio:
+          type: string
+          minLength: 1
+          maxLength: 80
+          example: corte
+    Cita:
+      type: object
+      required: [franja, fecha, uid, correo, servicio, inicio, duracionMin, estado, creadoEn]
+      additionalProperties: false
+      properties:
+        franja:
+          type: string
+          example: "2030-01-02T15-00"
+        fecha:
+          type: string
+          example: "2030-01-02"
+        uid:
+          type: string
+        correo:
+          type: string
+          format: email
+        servicio:
+          type: string
+        inicio:
+          type: string
+          format: date-time
+        duracionMin:
+          type: integer
+          example: 30
+        estado:
+          type: string
+          enum: [confirmada, cancelada]
+        creadoEn:
+          type: string
+          format: date-time
+    Horario:
+      type: object
+      additionalProperties: false
+      required: [diasLaborales, apertura, cierre, zonaHoraria, bloqueos]
+      properties:
+        diasLaborales:
+          type: array
+          minItems: 1
+          items:
+            type: integer
+            minimum: 0
+            maximum: 6
+          description: 0 = domingo … 6 = sábado
+          example: [1, 2, 3, 4, 5, 6]
+        apertura:
+          type: string
+          pattern: "^([01]\\d|2[0-3]):[0-5]\\d$"
+          example: "08:00"
+        cierre:
+          type: string
+          pattern: "^([01]\\d|2[0-3]):[0-5]\\d$"
+          example: "17:00"
+        zonaHoraria:
+          type: string
+          example: America/Bogota
+        bloqueos:
+          type: array
+          items:
+            type: string
+            pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+          example: ["2030-01-06"]

@@ -1,0 +1,15 @@
+meta {
+  name: Listar franjas
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/franjas?fecha={{fecha}}
+  body: none
+  auth: none
+}
+
+params:query {
+  fecha: {{fecha}}
+}
