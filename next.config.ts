@@ -34,7 +34,7 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   cacheComponents: false,
   partialPrefetching: false,
-  serverExternalPackages: ["firebase-admin"],
+  transpilePackages: ["firebase-admin", "jwks-rsa", "jose"],
   async headers() {
     return [
       {
