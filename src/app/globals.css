@@ -7,6 +7,7 @@
   --focus: #1d4ed8;
   --ok: #15803d;
   --danger: #b91c1c;
+  --hover: rgba(29, 78, 216, 0.12);
   color-scheme: light dark;
 }
 
@@ -20,6 +21,7 @@
     --focus: #93c5fd;
     --ok: #4ade80;
     --danger: #f87171;
+    --hover: rgba(147, 197, 253, 0.16);
   }
 }
 
@@ -210,6 +212,79 @@ input:focus-visible {
 
 button {
   font: inherit;
+}
+
+/* Ajustes visuales para react-data-table-component */
+.rdt_TableWrapper,
+.rdt_Table,
+.rdt_TableBody,
+.rdt_TableCell {
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+.rdt_TableHead {
+  background-color: var(--surface);
+  color: var(--fg);
+}
+
+.rdt_TableHeadRow {
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.rdt_TableRow {
+  background-color: var(--bg);
+  color: var(--fg);
+  border-bottom: 1px solid var(--border);
+}
+
+.rdt_TableRow:hover {
+  background-color: var(--hover);
+  color: var(--fg);
+}
+
+.rdt_bodyOverlay,
+.rdt_bodyOverlayEmpty,
+.rdt_progress {
+  background-color: var(--bg) !important;
+  color: var(--fg);
+}
+
+.rdt_spinner {
+  border-color: var(--focus) transparent transparent transparent !important;
+}
+
+.rdt_responsiveWrapper,
+.rdt_wrapper {
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+.rdt_Pagination {
+  background-color: var(--bg);
+  color: var(--fg);
+  border-top: 1px solid var(--border);
+}
+
+.rdt_Pagination select {
+  background-color: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.rdt_Pagination button {
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.rdt_Pagination button:hover:not(:disabled) {
+  background-color: var(--focus);
+  color: #fff;
+  border-color: var(--focus);
 }
 
 @media (prefers-reduced-motion: reduce) {
