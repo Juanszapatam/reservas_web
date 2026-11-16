@@ -1,0 +1,141 @@
+.contenedor {
+  display: grid;
+  gap: 1rem;
+}
+
+.form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 32rem;
+}
+
+.campo {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.form input,
+.campo select {
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font: inherit;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.form input:focus-visible,
+.campo select:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.zonas {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.estadoRegion {
+  min-height: 1.5rem;
+}
+
+.errorCampo {
+  color: var(--danger);
+  margin: 0;
+}
+
+.errorBox {
+  border: 1px solid var(--danger);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.errorBox button {
+  min-height: 44px;
+  width: fit-content;
+  padding: 0.5rem 1rem;
+}
+
+.exito {
+  border: 1px solid var(--ok);
+  border-radius: 0.75rem;
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.5rem;
+  background: var(--surface);
+}
+
+.exito p {
+  margin: 0;
+}
+
+.exitoAcciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.exitoAcciones button,
+.dialogoAcciones button {
+  min-height: 44px;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+  font: inherit;
+}
+
+.dialogo {
+  width: min(100% - 2rem, 30rem);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.dialogo::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+.dialogoForm {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.25rem;
+}
+
+.dialogoForm h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.dialogoForm p {
+  margin: 0;
+}
+
+.dialogoAcciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dialogoAcciones button[type="submit"] {
+  border-color: var(--focus);
+  font-weight: 600;
+}
+
+.dialogoAcciones button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.aviso {
+  color: var(--muted);
+}

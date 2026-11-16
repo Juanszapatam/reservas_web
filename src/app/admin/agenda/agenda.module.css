@@ -1,0 +1,162 @@
+.contenedor {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.columnaAgenda,
+.columnaConfig {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.campo {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.campo input {
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font: inherit;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.campo input:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.resumen {
+  margin: 0;
+  color: var(--muted);
+}
+
+.mensajes {
+  min-height: 1.5rem;
+}
+
+.tituloLista {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.exito {
+  margin: 0;
+  color: var(--ok);
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.esqueleto {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.esqueleto div {
+  height: 7rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(90deg, var(--surface), var(--border), var(--surface));
+  background-size: 200% 100%;
+  animation: brillo 1.4s linear infinite;
+}
+
+@keyframes brillo {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto div {
+    animation: none;
+  }
+}
+
+.errorBox {
+  border: 1px solid var(--danger);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.errorBox button {
+  min-height: 44px;
+  width: fit-content;
+  padding: 0.5rem 1rem;
+}
+
+.dialogo {
+  width: min(100% - 2rem, 28rem);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.dialogo::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+.dialogoContenido {
+  padding: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.dialogoContenido h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.dialogoContenido p {
+  margin: 0;
+}
+
+.dialogoAcciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dialogoAcciones button {
+  min-height: 44px;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+  font: inherit;
+}
+
+.dialogoAcciones button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (min-width: 1024px) {
+  .contenedor {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}

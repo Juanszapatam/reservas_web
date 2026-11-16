@@ -1,0 +1,70 @@
+.contenedor {
+  display: grid;
+  gap: 1rem;
+  max-width: 30rem;
+}
+
+.form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.campo {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.campo input {
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font: inherit;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.campo input:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.form button,
+.demo button {
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+  font: inherit;
+}
+
+.form button[type="submit"] {
+  border-color: var(--focus);
+  font-weight: 600;
+}
+
+.demo {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.errorRegion {
+  min-height: 1.5rem;
+}
+
+.error {
+  color: var(--danger);
+  margin: 0;
+}
