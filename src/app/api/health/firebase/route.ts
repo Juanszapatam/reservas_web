@@ -10,7 +10,16 @@ import {
 } from "@/lib/firebase/admin";
 
 export const GET = manejar(async () => {
-  const estado = {
+  const estado: {
+    adminConfigurado: boolean;
+    authConfigurada: boolean;
+    firestoreConfigurado: boolean;
+    emuladorActivo: boolean;
+    auth: boolean;
+    firestore: boolean;
+    authError?: string;
+    firestoreError?: string;
+  } = {
     adminConfigurado: adminConfigurado(),
     authConfigurada: authConfigurada(),
     firestoreConfigurado: firestoreConfigurado(),
@@ -23,8 +32,9 @@ export const GET = manejar(async () => {
     try {
       await authAdmin();
       estado.auth = true;
-    } catch {
+    } catch (error) {
       estado.auth = false;
+      estado.authError = error instanceof Error ? error.message : "Error desconocido";
     }
   }
 
@@ -33,8 +43,9 @@ export const GET = manejar(async () => {
       const db = await firestoreAdmin();
       await db.collection("citas").limit(1).get();
       estado.firestore = true;
-    } catch {
+    } catch (error) {
       estado.firestore = false;
+      estado.firestoreError = error instanceof Error ? error.message : "Error desconocido";
     }
   }
 
