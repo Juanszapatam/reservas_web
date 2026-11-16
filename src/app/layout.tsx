@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { SesionProvider } from "@/components/SesionProvider";
 import { SesionNav } from "@/components/SesionNav";
+import { NavPrincipal } from "@/components/NavPrincipal";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,14 +27,7 @@ export default function RootLayout({
           <header className="site-header">
             <div className="container header-inner">
               <p className="brand">Reserva de citas</p>
-              <nav aria-label="Principal">
-                <ul className="nav-list">
-                  <li><Link href="/">Inicio</Link></li>
-                  <li><Link href="/reservar">Reservar</Link></li>
-                  <li><Link href="/mis-citas">Mis citas</Link></li>
-                  <li><Link href="/admin/agenda">Agenda (admin)</Link></li>
-                </ul>
-              </nav>
+              <NavPrincipal />
               <SesionNav />
             </div>
           </header>

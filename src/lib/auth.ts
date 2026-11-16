@@ -7,6 +7,7 @@ export type Usuario = {
   uid: string;
   correo: string;
   rol: Rol;
+  sede?: string;
 };
 
 export const USUARIO_DEMO_CLIENTE: Usuario = {
@@ -33,11 +34,12 @@ function leerCookie(request: Request, nombre: string): string | null {
   return null;
 }
 
-function usuarioDesdeClaims(uid: string, correo: string | undefined, rol: unknown): Usuario {
+function usuarioDesdeClaims(uid: string, correo: string | undefined, rol: unknown, sede: unknown): Usuario {
   return {
     uid,
     correo: correo ?? "",
     rol: rol === "admin" ? "admin" : "cliente",
+    sede: typeof sede === "string" ? sede : undefined,
   };
 }
 
@@ -69,7 +71,7 @@ export async function requerirUsuario(request: Request): Promise<Usuario> {
     const decoded = bearer
       ? await auth.verifyIdToken(bearer, true)
       : await auth.verifySessionCookie(token, true);
-    return usuarioDesdeClaims(decoded.uid, decoded.email, decoded.rol);
+    return usuarioDesdeClaims(decoded.uid, decoded.email, decoded.rol, decoded.sede);
   } catch {
     throw new NoAutorizado("Sesión inválida o vencida");
   }

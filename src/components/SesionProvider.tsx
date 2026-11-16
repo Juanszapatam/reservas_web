@@ -7,6 +7,7 @@ export type UsuarioSesion = {
   uid: string;
   correo: string;
   rol: Rol;
+  sede?: string;
 };
 
 type ContextoSesion = {
