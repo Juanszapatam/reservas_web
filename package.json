@@ -1,0 +1,49 @@
+{
+  "name": "reserva-de-citas",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "emuladores": "firebase emulators:start",
+    "emuladores:auth": "firebase emulators:start --only auth",
+    "test:emulador": "firebase emulators:exec --only auth,firestore \"npm run test:emulador:vitest\"",
+    "test:emulador:auth": "firebase emulators:exec --only auth \"npm run test:emulador:vitest\"",
+    "test:emulador:vitest": "cross-env EMULADOR_TEST=1 REPOSITORIO=firestore vitest run tests/integracion",
+    "sembrar:emulador": "cross-env FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 node scripts/sembrar-emulador.mjs",
+    "admin:asignar": "node --env-file-if-exists=.env.local scripts/asignar-admin.mjs"
+  },
+  "dependencies": {
+    "@google-cloud/firestore": "^9.1.0",
+    "firebase": "^13.3.0",
+    "firebase-admin": "^14.5.1",
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.12",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4.7.0",
+    "cross-env": "^10.1.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "firebase-tools": "^15.36.0",
+    "jsdom": "^25.0.1",
+    "typescript": "^5",
+    "vitest": "^2.1.9"
+  }
+}
