@@ -1,0 +1,17 @@
+Evidencia de la verificación de restricciones
+=============================================
+
+Comando:
+  node ia/restricciones-verificar.mjs
+
+Resultado esperado:
+  OK: restricciones verificadas (N archivos versionados).
+
+Comprobaciones:
+  - No hay archivos .env* versionados (salvo .env.example).
+  - No se detectan claves privadas ni tokens en el código versionado.
+  - No hay imports de firebase/firestore en el cliente.
+  - No hay dangerouslySetInnerHTML sin sanear.
+  - Todas las rutas revisadas están dentro del proyecto.
+
+Fecha de la última ejecución: 2026-11-16

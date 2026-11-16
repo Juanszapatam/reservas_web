@@ -1,0 +1,88 @@
+
+> reserva-de-citas@0.1.0 test
+> vitest run
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mE:/M.2/Desktop/Estudio/TdeA/Web/reserva-de-citas[39m
+
+ [2m[90m↓[39m[22m tests/integracion/auth.emulador.test.ts [2m([22m[2m4 tests[22m[2m | [22m[33m4 skipped[39m[2m)[22m
+ [2m[90m↓[39m[22m tests/integracion/citas.firestore.test.ts [2m([22m[2m4 tests[22m[2m | [22m[33m4 skipped[39m[2m)[22m
+[90mstdout[2m | tests/api.franjas.test.ts[2m > [22m[2mGET /api/franjas[2m > [22m[2mdevuelve las franjas de un día laboral con su zona horaria
+[22m[39m{"requestId":"129d5262-c4a1-4d10-b172-a90c50f43b14","metodo":"GET","ruta":"/api/franjas","ms":43}
+
+[90mstdout[2m | tests/api.franjas.test.ts[2m > [22m[2mGET /api/franjas[2m > [22m[2mmarca como ocupada una franja ya reservada
+[22m[39m{"requestId":"69348413-7f52-4a1a-917e-aae2711b8fd8","metodo":"GET","ruta":"/api/franjas","ms":7}
+
+[90mstdout[2m | tests/api.franjas.test.ts[2m > [22m[2mGET /api/franjas[2m > [22m[2mdevuelve el motivo cuando el día no es laboral
+[22m[39m{"requestId":"d5928ee8-bdf0-4453-b21f-2f50224a8f98","metodo":"GET","ruta":"/api/franjas","ms":0}
+
+[90mstdout[2m | tests/api.franjas.test.ts[2m > [22m[2mGET /api/franjas[2m > [22m[2mrechaza una fecha con formato inválido
+[22m[39m{"requestId":"d784f176-5fbd-4327-9b73-cdc0d3eb1f37","metodo":"GET","ruta":"/api/franjas","ms":1}
+
+[90mstdout[2m | tests/api.franjas.test.ts[2m > [22m[2mGET /api/franjas[2m > [22m[2mrechaza una fecha que no existe en el calendario
+[22m[39m{"requestId":"25cd90e2-f473-4618-8c76-a70cefbec44b","metodo":"GET","ruta":"/api/franjas","ms":2}
+
+ [32m✓[39m tests/api.franjas.test.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 76[2mms[22m[39m
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mPOST /api/citas[2m > [22m[2mcrea una cita para el cliente autenticado
+[22m[39m{"requestId":"ecd92c13-3dd4-41e7-a23f-a2e99fa3732c","metodo":"POST","ruta":"/api/citas","ms":16}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mPOST /api/citas[2m > [22m[2mexige sesión
+[22m[39m{"requestId":"1cc19acb-1610-4995-b25a-3ee202f34ad5","metodo":"POST","ruta":"/api/citas","ms":1}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mPOST /api/citas[2m > [22m[2mrechaza datos inválidos con detalles por campo
+[22m[39m{"requestId":"707de618-ff1c-46ed-8b5f-4ee296c4556b","metodo":"POST","ruta":"/api/citas","ms":2}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mPOST /api/citas[2m > [22m[2mrechaza un Content-Type que no sea JSON
+[22m[39m{"requestId":"468c7b7b-08ff-4056-a236-fbe70d3e8a1a","metodo":"POST","ruta":"/api/citas","ms":1}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mPOST /api/citas[2m > [22m[2mimpide reservar dos veces la misma franja
+[22m[39m{"requestId":"6448415d-27e7-464e-bb97-65f69a3a5646","metodo":"POST","ruta":"/api/citas","ms":8}
+{"requestId":"f55b5560-4d2b-422b-b6d6-3737b2bcf707","metodo":"POST","ruta":"/api/citas","ms":9}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mPOST /api/citas[2m > [22m[2mbloquea un Origin ajeno (CSRF)
+[22m[39m{"requestId":"fe729660-e18f-4b9d-8231-59d7f97c03ca","metodo":"POST","ruta":"/api/citas","ms":0}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mDELETE /api/citas/[franja][2m > [22m[2mcancela una cita propia con antelación suficiente
+[22m[39m{"requestId":"ceae3955-1ac8-4994-b57d-510c25e60a61","metodo":"POST","ruta":"/api/citas","ms":7}
+{"requestId":"30dba54a-835d-4a34-9f3c-296368d67d30","metodo":"DELETE","ruta":"/api/citas/2030-01-02T15-00","ms":1}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mDELETE /api/citas/[franja][2m > [22m[2mdevuelve 404 si la cita no existe
+[22m[39m{"requestId":"a6bac2c8-c9fd-42f1-83f4-c501cfcd6d6c","metodo":"DELETE","ruta":"/api/citas/2030-01-02T16-00","ms":1}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mDELETE /api/citas/[franja][2m > [22m[2mpermite al administrador cancelar la cita de un cliente
+[22m[39m{"requestId":"828b3d30-7dd0-4396-9425-d73820f306b8","metodo":"POST","ruta":"/api/citas","ms":5}
+{"requestId":"db7aae38-24ab-4470-8319-6544f276defb","metodo":"DELETE","ruta":"/api/citas/2030-01-02T15-00","ms":0}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mDELETE /api/citas/[franja][2m > [22m[2mrechaza un identificador de franja inválido
+[22m[39m{"requestId":"e4c810d3-0545-44e9-a61e-af077e103a72","metodo":"DELETE","ruta":"/api/citas/no-es-franja","ms":0}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mGET /api/mis-citas[2m > [22m[2mlista las citas activas del usuario autenticado
+[22m[39m{"requestId":"1a74da3c-2b42-4234-9fc0-611644ec5218","metodo":"POST","ruta":"/api/citas","ms":7}
+{"requestId":"d34a9577-5883-46c2-8f2b-881f849b3f50","metodo":"GET","ruta":"/api/mis-citas","ms":1}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mGET /api/mis-citas[2m > [22m[2mexige sesión
+[22m[39m{"requestId":"5e3ab6a0-1ba3-46ba-83dd-33c2a9bfa04c","metodo":"GET","ruta":"/api/mis-citas","ms":1}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mGET /api/admin/agenda[2m > [22m[2mpermite al administrador consultar la agenda del día
+[22m[39m{"requestId":"db4e3af5-3e91-4963-bd8d-4d797cd68444","metodo":"POST","ruta":"/api/citas","ms":5}
+{"requestId":"ab0211dd-e385-4be4-acb1-00af860f9417","metodo":"GET","ruta":"/api/admin/agenda","ms":1}
+
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mGET /api/admin/agenda[2m > [22m[2mprohíbe la agenda a un cliente (403)
+[22m[39m{"requestId":"2edc5f33-ce1a-4ae5-9313-6fd88e4b78fb","metodo":"GET","ruta":"/api/admin/agenda","ms":0}
+
+ [32m✓[39m tests/api.citas.test.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 124[2mms[22m[39m
+[90mstdout[2m | tests/api.citas.test.ts[2m > [22m[2mGET /api/admin/agenda[2m > [22m[2mexige sesión (401)
+[22m[39m{"requestId":"afa0bef7-d2fe-45f6-bba5-8e6fcd94acd2","metodo":"GET","ruta":"/api/admin/agenda","ms":0}
+
+ [32m✓[39m tests/repositorio.test.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+ [32m✓[39m tests/franja.schema.test.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m tests/franjas.service.test.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 54[2mms[22m[39m
+ [32m✓[39m tests/citas.service.test.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 86[2mms[22m[39m
+ [32m✓[39m tests/SlotGrid.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[90m 194[2mms[22m[39m
+ [32m✓[39m tests/CitaCard.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[90m 211[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[2m | [22m[33m2 skipped[39m[90m (10)[39m
+[2m      Tests [22m [1m[32m57 passed[39m[22m[2m | [22m[33m8 skipped[39m[90m (65)[39m
+[2m   Start at [22m 12:27:35
+[2m   Duration [22m 3.00s[2m (transform 902ms, setup 5.24s, collect 2.79s, tests 756ms, environment 8.31s, prepare 2.09s)[22m
+
