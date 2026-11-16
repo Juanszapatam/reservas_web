@@ -14,6 +14,15 @@ export function limitar(request: Request, maximo = 60, ventanaMs = 60_000): void
     request.headers.get("x-real-ip") ??
     "local";
   const ahora = Date.now();
+
+  // Limpieza oportunista para evitar que el mapa crezca sin límite en procesos largos.
+  // Nota: en entornos serverless el estado no se comparte entre instancias.
+  if (cubos.size > 1000) {
+    for (const [clave, cubo] of cubos) {
+      if (cubo.reinicio <= ahora) cubos.delete(clave);
+    }
+  }
+
   const cubo = cubos.get(ip);
 
   if (!cubo || cubo.reinicio <= ahora) {
@@ -98,6 +107,9 @@ export function manejar<C = unknown>(handler: Handler<C>) {
     try {
       const respuesta = await handler(request, contexto);
       respuesta.headers.set("X-Request-Id", requestId);
+      if (!respuesta.headers.has("Cache-Control")) {
+        respuesta.headers.set("Cache-Control", "no-store");
+      }
       return respuesta;
     } catch (error) {
       return respuestaError(error, requestId);

@@ -217,6 +217,13 @@ La bitácora está en [`BITACORA-IA.md`](./BITACORA-IA.md).
 - El navegador nunca usa Firestore; todo pasa por la API con el Admin SDK.
 - Las reglas de Firestore están en `firestore.rules` y deniegan todo el acceso de
   cliente (`allow read, write: if false`).
+- La CSP incluye `connect-src` para Firebase Auth (producción) o el emulador
+  (desarrollo), evitando bloquear el login en producción.
+- El limitador de peticiones es por proceso/instancia; en despliegues serverless
+  no es global. Para límites compartidos se recomienda un almacén externo
+  (Redis/Upstash) si el tráfico lo requiere.
+- Las respuestas de la API incluyen `Cache-Control: no-store` para evitar caché
+  de datos sensibles.
 
 ## Notas
 
