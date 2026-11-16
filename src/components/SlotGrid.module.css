@@ -1,0 +1,73 @@
+.meta {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.row {
+  display: contents;
+}
+
+.cellWrap {
+  min-width: 0;
+}
+
+.cell {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  color: var(--fg);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
+.cell:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.libre {
+  border-color: var(--ok);
+}
+
+.ocupada {
+  border-color: var(--danger);
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.hora {
+  font-weight: 600;
+}
+
+.estado {
+  font-size: 0.95rem;
+}
+
+.local {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

@@ -1,0 +1,86 @@
+.card {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: var(--surface);
+  display: grid;
+  gap: 0.5rem;
+}
+
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.cabecera h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.estado {
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid currentColor;
+}
+
+.activa {
+  color: var(--ok);
+}
+
+.finalizada {
+  color: var(--muted);
+}
+
+.cancelada {
+  color: var(--muted);
+}
+
+.hora,
+.local,
+.correo {
+  margin: 0;
+}
+
+.local,
+.correo {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.acciones button {
+  min-height: 44px;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.peligro {
+  border-color: var(--danger) !important;
+  color: var(--danger) !important;
+}
+
+.acciones button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.aviso {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.95rem;
+}
